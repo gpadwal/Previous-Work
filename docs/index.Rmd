@@ -1,0 +1,67 @@
+---
+title: "Examples"
+author: "Gurjot Padwal"
+date: "11-04-2022"
+output:
+  html_document:
+    df_print: paged
+---
+
+# **Question 1**
+
+```{r}
+library(tidyverse)
+county = read_csv("C:/Users/Gurjot Padwal/Downloads/county.csv")
+votes = read_csv("C:/Users/Gurjot Padwal/Downloads/votes.csv")
+```
+## **Part A**
+
+```{r}
+county_votes = inner_join(county, votes, by = "fips")
+```
+Use mutate() to add a new column to the county_votes data frame called pct_clinton, which is
+defined as the number of votes for Hillary Clinton divided by the total number of votes, and then
+multiplied by 100. That is, pct_clinton = 100 * votes_clinton / total_votes.
+## **Part B**
+
+```{r}
+county_votes2 <- county_votes %>% mutate(pct_clinton = 100 * votes_clinton/ total_votes)
+```
+## **Part C**
+
+```{r}
+county_votes2 %>%
+arrange(desc(pct_clinton))
+```
+
+After arranging the data, the counties that had the highest votes for Hillary Clinton were the District of Columbia, Prince George's County, and Bronx County with 92.85, 89.33, and 88.73 percent, respectively.
+
+## **Part D**
+
+```{r}
+ggplot(county_votes2, aes(x=pct_bachelors, y = pct_clinton)) + geom_point() + geom_smooth() + ylab("% Voted for Clinton") + xlab("% With a Bachelor's Degree")
+```
+Based on the scatterplot, it is hard to describe the association because it is very clustered but it does seem to have a positive association between the % of people with a Bachelor's in a certain county and the % of voters that voted for Hillary Clinton.
+
+## **Part E**
+
+```{r}
+county_votes_ca = county_votes2 %>% filter(state == "CA")
+county_votes_ca
+```
+
+## **Part F**
+
+```{r}
+ggplot(county_votes_ca, aes(x=pct_bachelors, y = pct_clinton)) + geom_point() + geom_smooth() + ylab("% Voted for Clinton") + xlab("% With a Bachelor's Degree")
+```
+In this scatter plot that only includes counties in California, there is a clear positive with the % of voters that have a Bachelor's Degree and the % of voters that voted for Hillary Clinton.
+
+
+# **Question 2**
+
+```{r}
+count = function(x) sum(is.na(x))
+apply(airquality, 2, count)
+```
+
