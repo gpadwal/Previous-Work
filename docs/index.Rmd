@@ -19,9 +19,7 @@ votes = read_csv("C:/Users/Gurjot Padwal/Downloads/votes.csv")
 ```{r}
 county_votes = inner_join(county, votes, by = "fips")
 ```
-Use mutate() to add a new column to the county_votes data frame called pct_clinton, which is
-defined as the number of votes for Hillary Clinton divided by the total number of votes, and then
-multiplied by 100. That is, pct_clinton = 100 * votes_clinton / total_votes.
+
 ## **Part B**
 
 ```{r}

@@ -1,0 +1,43 @@
+---
+title: "Data Manipulation Examples"
+author: "Gurjot Padwal"
+date: "2022-11-11"
+output:
+  html_document:
+    df_print: paged
+---
+
+# *Exercise 1*
+
+```{r}
+library(tidyverse)
+gss_cat2 <- gss_cat %>%
+mutate(partyid = fct_recode(partyid,
+"Republican, strong" = "Strong republican",
+"Republican, weak" = "Not str republican",
+"Independent, near rep" = "Ind,near rep",
+"Independent, near dem" = "Ind,near dem",
+"Democrat, weak" = "Not str democrat",
+"Democrat, strong" = "Strong democrat"
+))
+
+gss_cat3 <- gss_cat2 %>%
+  group_by(partyid) %>%
+  summarize(n = n(), avg_age = mean(age, na.rm = TRUE))
+gss_cat3
+  
+ggplot(gss_cat3, aes(avg_age, fct_reorder(partyid, avg_age))) +
+geom_point() + ylab("Party Affiliation") + xlab("Average Age")
+
+```
+
+# *Exercise 2*
+
+```{r}
+gss_cat4 <- gss_cat2 %>%
+  group_by(partyid)
+
+ggplot(gss_cat4, aes(fct_rev(fct_infreq(partyid)))) +
+geom_bar() + xlab("Party Affiliation") + ylab("Count") + coord_flip()
+```
+

@@ -1,0 +1,73 @@
+---
+title: "GeoSpatial Practice"
+author: "Gurjot Padwal"
+date: "2022-11-08"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(maps)
+```
+
+```{r}
+college <- read_csv("/Users/Gurjot Padwal/Downloads/college.csv")
+```
+
+```{r}
+college <- college %>%
+  mutate(state=as.factor(state), region=as.factor(region),
+         highest_degree=as.factor(highest_degree),
+         control=as.factor(control), gender=as.factor(gender),
+         loan_default_rate=as.numeric(loan_default_rate))
+
+```
+
+
+```{r}
+states = map_data("state")
+```
+
+```{r}
+college_summary <- college %>% 
+  group_by(state) %>% 
+  summarise(count=n(),region)
+  
+```
+
+```{r}
+college_summary <- college_summary %>%
+  mutate(region=as.character(setNames(str_to_lower(state.name), state.abb)[as.character(state)]))
+
+college_summary<- college_summary%>%
+  mutate(region = ifelse(as.character(state)=="DC", "district of Columbia",  region))
+
+
+```
+ 
+```{r}
+mapdata = left_join(states, college_summary, by="region") 
+  
+```
+
+
+#Create a Choropleth Map of USA with the colors based on the number of school
+
+```{r}
+ggplot(data = mapdata, mapping = aes(x= long, y= lat, group = group,fill=count))+
+  geom_polygon(color="black")+
+  scale_fill_distiller(name="# of Schools", palette="RdYlGn", direction = 1)
+
+```
+
+```{r}
+ ggplot(data = mapdata, mapping = aes(x= long, y= lat, group = group))+
+   geom_polygon(color="black",fill="maroon")+
+   geom_point(data=college, aes(x=lon,y=lat,group = NULL, size=undergrads), color="black")+
+  geom_point(data=college, aes(x=lon,y=lat,group = NULL, fill=control), color="gold")
+```
+
+  

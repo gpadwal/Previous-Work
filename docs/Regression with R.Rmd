@@ -1,0 +1,101 @@
+---
+title: "Regression"
+author: "Gurjot Padwal"
+date: "2022-05-06"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+```{r}
+starbucks <- readRDS(url("https://ericwfox.github.io/data/starbucks.rds"))
+```
+# **Exercise 2**
+## **Part A**
+```{r}
+head(starbucks)
+pairs(calories ~ total_fat_g + total_carbs_g + sugar_g, starbucks)
+round(cor(starbucks[2:5]), 2)
+```
+Yes there is a strong correlation between multiple variables. Calories has a strong correlation with total carbs and total sugars. There is a lower but still strong correlation between total fat and calories. There is also a very strong correlation between total carbs and sugar.
+
+## **Part B**
+```{r}
+lm1 = lm(calories ~ total_fat_g + total_carbs_g + sugar_g, starbucks)
+summary(lm1)
+```
+I find it unusual that the coefficient for sugar is negative given that sugar should increase the number of calories.
+
+## **Part C**
+```{r}
+library(faraway)
+round(vif(lm1), 2)
+```
+The VIFs for total carbs and sugar are far above the cutoff of 5. Both have a standard error 7.3 times larger than it would be without collinearity.
+## **Part D**
+```{r}
+lm2 = lm(calories ~ total_fat_g + sugar_g, starbucks)
+summary(lm2)
+round(vif(lm2), 2)
+```
+I removed total carbs from the model since it has the highest correlation with the other predictors.
+
+## **Part E**
+```{r}
+plot(predict(lm2), resid(lm2), xlab="Fitted Values", ylab="Residuals")
+abline(h=0)
+hist(resid(lm2), xlab="Residuals", main="")
+```
+The scatterplot matrix shows a linear relationship between calories and the predictors. The conditions for MLR seem to be adequately satisfied. There is constant variability in the residual vs. fitted plot. The histogram of residuals is fairly normal with a slight right skew. The data come from a random sample of 200 items from Starbucks, so we can assume independence.
+About 96 percent of the variablity in calories is explained by total fat and sugar in a Starbucks item.
+
+# **Exercise 3**
+```{r}
+county_votes <- readRDS(url("https://ericwfox.github.io/data/county_votes16.rds"))
+```
+## **Part A**
+```{r}
+library("ggplot2")
+glm1 = glm(trump_win ~ obama_pctvotes, data = county_votes, family = "binomial")
+summary(glm1)
+```
+
+## **Part B**
+```{r}
+ggplot(county_votes, aes(x = obama_pctvotes, y = trump_win)) + geom_point() + geom_smooth(method = "glm", method.args = list(family = "binomial"), se=F) + xlab("Percent Votes for Obama") +
+ylab("Estimated Probability Trump Won") + theme_bw()
+```
+
+## **Part C**
+```{r}
+new_x = data.frame(obama_pctvotes =40)
+predict(glm1, newdata = new_x, type = "response")
+new_x = data.frame(obama_pctvotes =50)
+predict(glm1, newdata = new_x, type = "response")
+new_x = data.frame(obama_pctvotes =60)
+predict(glm1, newdata = new_x, type = "response")
+```
+Probability Trump Winning with 40 Percent Obama Votes (county) = 99.488%
+Probability Trump Winning with 50 Percent Obama Votes (county) = 82.567%
+Probability Trump Winning with 60 Percent Obama Votes (county) = 10.344%
+
+# **Exercise 4**
+
+## **Part A**
+```{r}
+glm2 = glm(trump_win ~ pct_pop65 + pct_black + pct_white + pct_hispanic + pct_asian + highschool + bachelors + income, county_votes, family = "binomial")
+summary(glm2)
+```
+Pct_pop65 is not significant to this model fit.
+
+## **Part B**
+```{r}
+glm_step = step(glm2)
+summary(glm_step)
+```
+
+## **Part C**
+Because the coefficients of pct_black, pct_hispanic, pct_asian, highschool, and bachelors are negative, the increase in x will be associated with a decrease in the probability in Trump winning.
+Because the coefficients of pct_white and income are positive, the increase in x will be associated with an increase in the probability in Trump winning.
